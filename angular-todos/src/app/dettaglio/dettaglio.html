@@ -1,54 +1,59 @@
+<!-- routerLink: cambia pagina senza ricaricare il sito -->
 <a routerLink="/todos" class="btn btn-outline-secondary btn-sm mb-3">
-    &larr; Torna all'elenco
-  </a>
-  
-  <h2>Dettaglio Todo #{{ idCorrente() }}</h2>
-  
-  <!-- Indicatore di caricamento -->
-  @if (loading()) {
-    <div class="spinner-border text-primary my-3" role="status"></div>
-  }
-  
-  <!-- Messaggio di errore (404 o rete assente 0) -->
-  @if (errore(); as msg) {
-    <div class="alert alert-danger my-3">{{ msg }}</div>
-  }
-  
-  <!-- Card con i dati del singolo Todo -->
-  @if (todo(); as t) {
-    <div class="card my-3">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h3 class="card-title h5 mb-0">{{ t.title }}</h3>
-          @if (t.completed) {
-            <span class="badge text-bg-success">Completato</span>
-          } @else {
-            <span class="badge text-bg-warning">Da fare</span>
-          }
-        </div>
-        <p class="card-text text-body-secondary mb-0">
-          ID Todo: <strong>{{ t.id }}</strong> &bull; ID Utente: <strong>{{ t.userId }}</strong>
-        </p>
+  ← Torna all'elenco
+</a>
+
+<!-- {{ }}: legge il valore del Signal idCorrente e lo stampa a schermo -->
+<h2>Dettaglio Todo #{{ idCorrente() }}</h2>
+
+<!-- @if: mostra la rotella di caricamento finché loading() è vero -->
+@if (loading()) {
+  <div class="spinner-border text-primary my-3" role="status"></div>
+}
+
+<!-- @if con "as msg": se c'è un errore (404 o rete 0), lo salva in msg e mostra l'avviso rosso -->
+@if (errore(); as msg) {
+  <div class="alert alert-danger my-3">{{ msg }}</div>
+}
+
+<!-- @if con "as t": quando arrivano i dati, li salva in t e mostra la scheda -->
+@if (todo(); as t) {
+  <div class="card my-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <!-- Stampa il titolo preso dall'oggetto t -->
+        <h3 class="card-title h5 mb-0">{{ t.title }}</h3>
+        <!-- @if / @else: mostra "Completato" se t.completed è vero, altrimenti "Da fare" -->
+        @if (t.completed) {
+          <span class="badge text-bg-success">Completato</span>
+        } @else {
+          <span class="badge text-bg-warning">Da fare</span>
+        }
       </div>
+      <!-- Stampa l'ID del todo e l'ID dell'utente -->
+      <p class="card-text text-body-secondary mb-0">
+        ID Todo: <strong>{{ t.id }}</strong> • ID Utente: <strong>{{ t.userId }}</strong>
+      </p>
     </div>
-  }
-  
-  <!-- Pulsanti Precedente e Successivo -->
-  <div class="d-flex justify-content-between mt-4">
-    <button
-      type="button"
-      class="btn btn-primary"
-      [disabled]="idCorrente() <= 1 || loading()"
-      (click)="precedente()">
-      &laquo; Precedente
-    </button>
-  
-    <button
-      type="button"
-      class="btn btn-primary"
-      [disabled]="loading()"
-      (click)="successivo()">
-      Successivo &raquo;
-    </button>
   </div>
-  
+}
+
+<!-- [disabled]: disattiva il tasto se siamo all'ID 1 o sta caricando | (click): avvia precedente() -->
+<div class="d-flex justify-content-between mt-4">
+  <button
+    type="button"
+    class="btn btn-primary"
+    [disabled]="idCorrente() <= 1 || loading()"
+    (click)="precedente()">
+    « Precedente
+  </button>
+
+  <!-- [disabled]: disattiva il tasto mentre carica | (click): avvia successivo() -->
+  <button
+    type="button"
+    class="btn btn-primary"
+    [disabled]="loading()"
+    (click)="successivo()">
+    Successivo »
+  </button>
+</div>
