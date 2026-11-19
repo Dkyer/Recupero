@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TodoService } from '../services/todo-service';
 
@@ -9,26 +9,18 @@ import { TodoService } from '../services/todo-service';
   styleUrl: './elenco.css'
 })
 export class Elenco implements OnInit {
+  // Collega il servizio per leggere i signal e chiamare GET / POST
   readonly todoService = inject(TodoService);
 
-  // Signal per attivare/disattivare il filtro
-  readonly soloDaFare = signal(false);
+  // Conteggio calcolato automaticamente con computed quando cambia la lista
+  readonly totaleTodos = computed(() => this.todoService.todos().length);
 
-  // Conteggio calcolato con computed
-  readonly totaleCompletati = computed(() =>
-    this.todoService.todos().filter((t) => t.completed).length
-  );
-
-  // Elenco filtrato calcolato con computed
-  readonly todosVisibili = computed(() => {
-    const lista = this.todoService.todos();
-    return this.soloDaFare() ? lista.filter((t) => !t.completed) : lista;
-  });
-
+  // Appena la pagina si apre, carica i 100 todo
   ngOnInit(): void {
     this.todoService.caricaTodos();
   }
 
+  // Legge il testo dall'input e chiama la POST nel servizio
   aggiungi(input: HTMLInputElement): void {
     const titolo = input.value.trim();
     if (!titolo) return;
