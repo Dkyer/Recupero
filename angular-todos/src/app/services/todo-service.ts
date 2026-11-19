@@ -9,7 +9,7 @@ import { Todo } from '../modelli/todo';
 export class TodoService {
   // Strumento di Angular per fare chiamate HTTP (GET e POST)
   private readonly http = inject(HttpClient);
-  // Indirizzo base della risorsa su JSONPlaceholder
+  // Indirizzo base della risorsa su JSONPlaceholder (contiene 200 todo)
   private readonly baseUrl = 'https://jsonplaceholder.typicode.com/todos';
 
   // Signal privati: solo questo servizio può modificarli
@@ -22,7 +22,7 @@ export class TodoService {
   readonly loading = this._loading.asReadonly();
   readonly errore = this._errore.asReadonly();
 
-  // GET elenco: scarica i primi 100 todo dall'API
+  // GET elenco: scarica tutti i 200 todo dall'API
   caricaTodos(): void {
     // Se i dati sono già presenti in memoria, non rifà la chiamata
     if (this._todos().length > 0) return;
@@ -30,9 +30,9 @@ export class TodoService {
     this._loading.set(true);
     this._errore.set(null);
 
-    this.http.get<Todo[]>(`${this.baseUrl}?_limit=100`).subscribe({
+    this.http.get<Todo[]>(this.baseUrl).subscribe({
       next: (dati) => {
-        // Salva i 100 todo nel signal e spegne il caricamento
+        // Salva i 200 todo nel signal e spegne il caricamento
         this._todos.set(dati);
         this._loading.set(false);
       },
@@ -49,7 +49,7 @@ export class TodoService {
     return this.http.get<Todo>(`${this.baseUrl}/${id}`);
   }
 
-  // POST: crea un nuovo todo e lo aggiunge in cima all'elenco
+  // POST: crea un nuovo todo e lo aggiunge in fondo all'elenco
   aggiungiTodo(title: string): void {
     this._loading.set(true);
     this._errore.set(null);
@@ -58,8 +58,11 @@ export class TodoService {
 
     this.http.post<Todo>(this.baseUrl, nuovo).subscribe({
       next: (creato) => {
-        // Inserisce l'elemento creato all'inizio della lista attuale
-        this._todos.update((lista) => [creato, ...lista]);
+        this._todos.update((lista) => {
+          // Calcola l'ID progressivo (201, 202...) e lo aggiunge in fondo alla lista
+          const todoConId = { ...creato, id: lista.length + 1 };
+          return [...lista, todoConId];
+        });
         this._loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
@@ -80,3 +83,4 @@ export class TodoService {
     return `Errore HTTP ${err.status}`;
   }
 }
+
